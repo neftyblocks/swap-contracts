@@ -46,9 +46,9 @@ cleos push action amms.nefty createpair '{"creator":"init.nefty","token0":{"cont
 cleos push action amms.nefty removepair '{"pair_id":1}' -p admin.nefty  
 
 ### add liquidity
-cleos push action eosio.token transfer '["init.nefty","amms.nefty","1000.00000000 WAX","deposit:1"]' -p init.nefty  
-cleos push action usdt.alcor transfer '["init.nefty","amms.nefty","2000.0000 USDT","deposit:1"]' -p init.nefty  
-cleos push action amms.nefty addliquidity '["init.nefty",1]' -p init.nefty  
+cleos push action eosio.token transfer '["init.nefty","amms.nefty","1000.00000000 WAX","deposit_to_pair:8,WAX@eosio.token4,USDT@testbagzbag1-usdt.alcor"]' -p init.nefty  
+cleos push action usdt.alcor transfer '["init.nefty","amms.nefty","2000.0000 USDT","deposit_to_pair:8,WAX@eosio.token4,USDT@testbagzbag1-usdt.alcor"]' -p init.nefty  
+cleos push action amms.nefty addliquidity '{"creator":"owner","token0":{"contract":"eosio.token","sym":"8,WAX"},"token1":{"contract":"usdt.alcor","sym":"4,USDT"}}' -p init.nefty  
 
 ### cancel deposit order
 cleos push action amms.nefty cancel '["init.nefty",1]' -p init.nefty  

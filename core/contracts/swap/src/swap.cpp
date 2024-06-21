@@ -126,6 +126,23 @@ void swap::handle_transfer(name from, name to, asset quantity, string memo) {
     return;
   }
 
+  if (memo.find("deposit_to_pair:") == 0) {
+    const std::vector<extended_symbol> &symbols =
+        symbols_from_string(memo.substr(16));
+
+    uint64_t hash = str_hash(symbols[0], symbols[1]);
+    auto byhash_idx = _pairs.get_index<"byhash"_n>();
+    auto p_itr = byhash_idx.find(hash);
+    while (
+        !is_same_pair(p_itr->token0, p_itr->token1, symbols[0], symbols[1])) {
+      p_itr++;
+    }
+    check(p_itr != byhash_idx.end(), "pair does not exist");
+    uint64_t pair_id = p_itr->id;
+    handle_deposit(pair_id, from, code, quantity);
+    return;
+  }
+
   std::map<string, string> dict = mappify(memo);
   check(dict.size() >= 1, "invaild memo");
   if (dict.find("deposit") != dict.end()) {
@@ -248,10 +265,19 @@ void swap::handle_deposit(uint64_t pair_id, name owner, name contract,
   });
 }
 
-void swap::addliquidity(name owner, uint64_t pair_id) {
+void swap::addliquidity(name owner, extended_symbol token0,
+                        extended_symbol token1) {
+  uint64_t hash = str_hash(token0, token1);
+  auto byhash_idx = _pairs.get_index<"byhash"_n>();
+  auto p_itr = byhash_idx.find(hash);
+  while (!is_same_pair(p_itr->token0, p_itr->token1, token0, token1)) {
+    p_itr++;
+  }
+  check(p_itr != byhash_idx.end(), "pair does not exist");
+  uint64_t pair_id = p_itr->id;
+
   deposits_mi deposits(_self, pair_id);
   auto d_itr = deposits.require_find(owner.value, "you don't have any deposit");
-  auto p_itr = _pairs.require_find(pair_id, "pair does not exist");
   check(d_itr->quantity0.amount > 0 && d_itr->quantity1.amount > 0,
         "you need have both tokens");
 
@@ -292,7 +318,7 @@ void swap::addliquidity(name owner, uint64_t pair_id) {
 
   deposits.erase(d_itr);
 
-  _pairs.modify(p_itr, same_payer, [&](auto &a) {
+  byhash_idx.modify(p_itr, same_payer, [&](auto &a) {
     a.total_liquidity = safe_add(a.total_liquidity, liquidity);
   });
 

@@ -17,7 +17,8 @@ public:
   [[eosio::action]] void createpair(name creator, extended_symbol token0,
                                     extended_symbol token1);
   [[eosio::action]] void removepair(uint64_t pair_id);
-  [[eosio::action]] void addliquidity(name owner, uint64_t pair_id);
+  [[eosio::action]] void addliquidity(name owner, extended_symbol token0,
+                                      extended_symbol token1);
   [[eosio::action]] void refund(name owner, uint64_t pair_id);
 
   [[eosio::on_notify("*::transfer")]] void
