@@ -65,12 +65,8 @@ void lptoken::transfer(const name &from, const name &to, const asset &quantity, 
 
     auto payer = has_auth(to) ? to : from;
 
-    auto balance0 = sub_balance(from, quantity);
-    auto balance1 = add_balance(to, quantity, payer);
-
-    // change log
-    auto data = std::make_tuple(quantity.symbol.code(), from, to, quantity.amount, balance0, balance1);
-    action(permission_level{_self, "active"_n}, LPNOTIFY_CONTRACT, "transferlog"_n, data).send();
+    sub_balance(from, quantity);
+    add_balance(to, quantity, payer);
 }
 
 uint64_t lptoken::sub_balance(const name &owner, const asset &value) {
@@ -104,10 +100,6 @@ uint64_t lptoken::sub_balance(const name &owner, const asset &value) {
                 a.liquidity -= value.amount;
             });
         }
-        // notify pools
-        auto data = std::make_tuple(_self, value.symbol.code(), owner, balance, balance - value.amount);
-        action(permission_level{_self, "active"_n}, LPNOTIFY_CONTRACT, "tokenchange"_n, data).send();
-
     }
     return balance - value.amount;
 }
@@ -146,9 +138,6 @@ uint64_t lptoken::add_balance(const name &owner, const asset &value, const name 
                 a.liquidity += value.amount;
             });
         }
-        // notify pools
-        auto data = std::make_tuple(_self, value.symbol.code(), owner, pre_amount, pre_amount + value.amount);
-        action(permission_level{_self, "active"_n}, LPNOTIFY_CONTRACT, "tokenchange"_n, data).send();
     }
     return pre_amount + value.amount;
 }

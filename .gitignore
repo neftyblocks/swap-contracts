@@ -3,6 +3,7 @@
 .DS_Store
 
 build/
+artifacts/
 .vscode/
 .idea/
 cmake-build-debug/
