@@ -14,6 +14,7 @@ struct liquidity_cost {
 
 struct pair {
   symbol_code code;
+  bool active;
   extended_asset reserve0;
   extended_asset reserve1;
   uint64_t total_liquidity;
