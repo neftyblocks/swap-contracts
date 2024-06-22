@@ -16,50 +16,51 @@ public:
 
   [[eosio::action]] void createpair(name creator, extended_symbol token0,
                                     extended_symbol token1);
-  [[eosio::action]] void removepair(uint64_t pair_id);
+  [[eosio::action]] void removepair(symbol_code code);
   [[eosio::action]] void addliquidity(name owner, extended_symbol token0,
                                       extended_symbol token1);
-  [[eosio::action]] void refund(name owner, uint64_t pair_id);
+  [[eosio::action]] void refund(name owner, symbol_code code);
 
   [[eosio::on_notify("*::transfer")]] void
   handle_transfer(name from, name to, asset quantity, string memo);
 
   // Log actions
-  [[eosio::action]] void lognewpair(uint64_t pair_id, name creator,
+  [[eosio::action]] void lognewpair(symbol_code code, name creator,
                                     extended_symbol token0,
                                     extended_symbol token1);
-  [[eosio::action]] void logaddliq(uint64_t pair_id, name owner,
+  [[eosio::action]] void logaddliq(symbol_code code, name owner,
                                    uint64_t liquidity, asset quantity0,
                                    asset quantity1, uint64_t total_liquidity,
-                                   name contract0, name contract1,
-                                   asset reserve0, asset reserve1);
-  [[eosio::action]] void logremliq(uint64_t pair_id, name owner,
+                                   extended_asset reserve0,
+                                   extended_asset reserve1);
+  [[eosio::action]] void logremliq(symbol_code code, name owner,
                                    uint64_t liquidity, asset quantity0,
                                    asset quantity1, uint64_t total_liquidity,
-                                   name contract0, name contract1,
-                                   asset reserve0, asset reserve1);
-  [[eosio::action]] void logswap(uint64_t pair_id, name owner, name contract_in,
+                                   extended_asset reserve0,
+                                   extended_asset reserve1);
+  [[eosio::action]] void logswap(symbol_code code, name owner, name contract_in,
                                  asset quantity_in, name contract_out,
                                  asset quantity_out, asset fee,
                                  double trade_price, uint64_t total_liquidity,
-                                 asset reserve0, asset reserve1);
+                                 extended_asset reserve0,
+                                 extended_asset reserve1);
 
 private:
   TABLE pair {
-    uint64_t id;
     symbol_code code;
-    extended_symbol token0;
-    extended_symbol token1;
-    asset reserve0;
-    asset reserve1;
+    extended_asset reserve0;
+    extended_asset reserve1;
     uint64_t total_liquidity;
     block_timestamp created_time;
     block_timestamp updated_time;
-    uint64_t primary_key() const { return id; }
-    uint64_t hash() const { return str_hash(token0, token1); }
+    uint64_t primary_key() const { return code.raw(); }
+    uint64_t hash() const {
+      return str_hash(reserve0.get_extended_symbol(),
+                      reserve1.get_extended_symbol());
+    }
     EOSLIB_SERIALIZE(
         pair,
-        (id)(code)(token0)(token1)(reserve0)(reserve1)(total_liquidity)(created_time)(updated_time))
+        (code)(reserve0)(reserve1)(total_liquidity)(created_time)(updated_time))
   };
 
   TABLE deposit {
@@ -86,16 +87,16 @@ private:
   pairs_mi _pairs;
   configs_mi _configs;
 
-  extended_asset swap_token(uint64_t pair_id, name from, name contract,
+  extended_asset swap_token(symbol_code code, name from, name contract,
                             asset quantity);
-  void update_pair(uint64_t pair_id, uint64_t balance0, uint64_t balance1,
+  void update_pair(symbol_code code, uint64_t balance0, uint64_t balance1,
                    uint64_t reserve0, uint64_t reserve1);
-  void handle_swap(std::vector<uint64_t> ids, name from, name contract,
+  void handle_swap(std::vector<symbol_code> codes, name from, name contract,
                    asset quantity, uint64_t min_out);
-  void handle_deposit(uint64_t pair_id, name owner, name contract,
+  void handle_deposit(symbol_code code, name owner, name contract,
                       asset quantity);
   void handle_rmliquidity(name owner, name contract, asset quantity);
-  void remove_liquidity(name owner, uint64_t pair_id, uint64_t amount);
+  void remove_liquidity(name owner, symbol_code code, uint64_t amount);
 
   uint64_t get_config(string key) {
     auto itr = _configs.find(name(key).value);

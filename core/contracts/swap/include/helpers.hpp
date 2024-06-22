@@ -53,14 +53,15 @@ bool is_same_pair(extended_symbol token0, extended_symbol token1,
          (token0 == token3 && token1 == token2);
 }
 
-std::vector<uint64_t> split_ids(const string &str, const string &delim) {
-  std::vector<uint64_t> vect;
+std::vector<symbol_code> split_codes(const string &str, const string &delim) {
+  std::vector<symbol_code> vect;
   int start, end = -1 * delim.size();
   do {
     start = end + delim.size();
     end = str.find(delim, start);
     string token = str.substr(start, end - start);
-    vect.push_back(strtoull(token.empty() ? "0" : token.c_str(), NULL, 10));
+    check(!token.empty(), "invalid symbol string");
+    vect.push_back(symbol_code(token));
   } while (end != -1);
   return vect;
 }
@@ -117,7 +118,7 @@ std::map<string, string> mappify(string const &s) {
   return m;
 }
 
-string id2code(uint64_t id) {
+string int2code(uint64_t id) {
   string code = "";
   while (id > 0) {
     int m = id % 26;
@@ -126,7 +127,7 @@ string id2code(uint64_t id) {
     code = (char)(m + 64) + code;
     id = (id - m) / 26;
   }
-  return "LP" + code;
+  return code;
 }
 
 uint64_t code2id(string s) {

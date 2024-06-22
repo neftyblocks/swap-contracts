@@ -23,43 +23,62 @@ Forked from Totoro Finance Swap contracts. Modified to deploy in WAX.
 
 ### deploy
 
+```bash
 cleos set contract amms.nefty ./artifacts swap.wasm swap.abi -p amms.nefty@active
 cleos set contract lp.nefty ./artifacts lptoken.wasm lptoken.abi -p lp.nefty@active
+```
 
 ### setup
+
+```bash
 cleos push action amms.nefty setname '["manager", "admin.nefty"]' -p admin.nefty  
 cleos push action amms.nefty setname '["fee.account", "fees.nefty"]' -p admin.nefty  
 cleos push action amms.nefty setconfig '["fee.protocol", 10]' -p admin.nefty  
 cleos push action amms.nefty setconfig '["fee.trade", 20]' -p admin.nefty  
 cleos push action amms.nefty setconfig '["status", 1]' -p admin.nefty  
-
-// additional  
-cleos push action amms.nefty setname '["mine.account", "mine.nefty"]' -p admin.nefty  
-cleos push action amms.nefty setconfig '["mine.status", 1]' -p admin.nefty  
-cleos push action amms.nefty setname '["orac.account", "oracle.nefty"]' -p admin.nefty  
-cleos push action amms.nefty setconfig '["orac.status", 1]' -p admin.nefty  
+```
 
 ### create pair
-cleos push action amms.nefty createpair '{"creator":"init.nefty","token0":{"contract":"eosio.token","sym":"8,WAX"},"token1":{"contract":"usdt.alcor","sym":"4,USDT"}}' -p init.nefty  
+
+```bash
+cleos push action amms.nefty createpair '{"creator":"init.nefty","token0":{"contract":"eosio.token","sym":"8,WAX"},"token1":{"contract":"usdt.alcor","sym":"4,USDT"}}' -p init.nefty
+```
 
 ### remove pair
-cleos push action amms.nefty removepair '{"pair_id":1}' -p admin.nefty  
+
+```bash
+cleos push action amms.nefty removepair '{"code":USDWAX}' -p admin.nefty  
+```
 
 ### add liquidity
+
+```bash
 cleos push action eosio.token transfer '["init.nefty","amms.nefty","1000.00000000 WAX","deposit_to_pair:8,WAX@eosio.token4,USDT@testbagzbag1-usdt.alcor"]' -p init.nefty  
 cleos push action usdt.alcor transfer '["init.nefty","amms.nefty","2000.0000 USDT","deposit_to_pair:8,WAX@eosio.token4,USDT@testbagzbag1-usdt.alcor"]' -p init.nefty  
 cleos push action amms.nefty addliquidity '{"creator":"owner","token0":{"contract":"eosio.token","sym":"8,WAX"},"token1":{"contract":"usdt.alcor","sym":"4,USDT"}}' -p init.nefty  
+```
 
 ### cancel deposit order
+
+```bash
 cleos push action amms.nefty cancel '["init.nefty",1]' -p init.nefty  
+```
 
 ### remove liquidity
-cleos push action lptoken.ttr transfer '["init.nefty","amms.nefty","14832396 LPA",""]' -p init.nefty  
+
+```bash
+cleos push action lptoken.ttr transfer '["init.nefty","amms.nefty","14832396 USDWAX",""]' -p init.nefty  
+```
 
 ### swap
-cleos push action eosio.token transfer '["init.nefty","amms.nefty","1.00000000 WAX","swap:1"]' -p init.nefty  
-cleos push action usdt.alcor transfer '["init.nefty","amms.nefty","1.0000 USDT","swap:1"]' -p init.nefty  
+
+```bash
+cleos push action eosio.token transfer '["init.nefty","amms.nefty","1.00000000 WAX","swap:USDWAX"]' -p init.nefty  
+cleos push action usdt.alcor transfer '["init.nefty","amms.nefty","1.0000 USDT","swap:USDWAX"]' -p init.nefty  
+```
 
 ### multi-path swap
-cleos push action usdt.alcor transfer '["init.nefty","amms.nefty","10.0000 USDT","swap:1-2"]' -p init.nefty  
 
+```bash
+cleos push action usdt.alcor transfer '["init.nefty","amms.nefty","10.0000 USDT","swap:NEFWAX-USDWAX"]' -p init.nefty  
+```
