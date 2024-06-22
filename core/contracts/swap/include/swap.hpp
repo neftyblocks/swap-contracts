@@ -20,6 +20,7 @@ public:
   [[eosio::action]] void addliquidity(name owner, extended_symbol token0,
                                       extended_symbol token1);
   [[eosio::action]] void refund(name owner, symbol_code code);
+  [[eosio::action]] void setactive(symbol_code code, bool active);
 
   [[eosio::on_notify("*::transfer")]] void
   handle_transfer(name from, name to, asset quantity, string memo);
@@ -48,6 +49,7 @@ public:
 private:
   TABLE pair {
     symbol_code code;
+    bool active;
     extended_asset reserve0;
     extended_asset reserve1;
     uint64_t total_liquidity;
@@ -60,7 +62,7 @@ private:
     }
     EOSLIB_SERIALIZE(
         pair,
-        (code)(reserve0)(reserve1)(total_liquidity)(created_time)(updated_time))
+        (code)(active)(reserve0)(reserve1)(total_liquidity)(created_time)(updated_time))
   };
 
   TABLE deposit {

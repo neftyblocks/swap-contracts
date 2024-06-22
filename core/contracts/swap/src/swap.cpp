@@ -48,6 +48,7 @@ ACTION swap::createpair(name creator, extended_symbol token0,
   auto timestamp = current_block_time();
   _pairs.emplace(creator, [&](auto &a) {
     a.code = sym.code();
+    a.active = true;
     a.reserve0 = extended_asset(0, token0);
     a.reserve1 = extended_asset(0, token1);
     a.total_liquidity = 0;
@@ -76,8 +77,6 @@ ACTION swap::removepair(symbol_code code) {
 
   auto now_time = current_time_point().sec_since_epoch();
   auto create_time = p_itr->created_time.to_time_point().sec_since_epoch();
-  // check(now_time - create_time > 60, "Please do not remove pair
-  // immediately"); // only admin can call now
 
   deposits_mi deposits(_self, code.raw());
   check(deposits.begin() == deposits.end(),
@@ -89,6 +88,16 @@ ACTION swap::removepair(symbol_code code) {
       .send();
 
   _pairs.erase(p_itr);
+}
+
+ACTION swap::setactive(symbol_code code, bool active) {
+  require_auth(get_manager());
+
+  auto p_itr = _pairs.require_find(code.raw(), "pair does not exist");
+  _pairs.modify(p_itr, same_payer, [&](auto &a) {
+    a.active = active;
+    a.updated_time = current_block_time();
+  });
 }
 
 ACTION swap::refund(name owner, symbol_code code) {
@@ -248,6 +257,7 @@ void swap::remove_liquidity(name owner, symbol_code code, uint64_t amount) {
 void swap::handle_deposit(symbol_code code, name owner, name contract,
                           asset quantity) {
   auto p_itr = _pairs.require_find(code.raw(), "pair does not exist");
+  check(p_itr->active, "pair is not active for deposits");
 
   extended_symbol input(quantity.symbol, contract);
   extended_symbol token0 = p_itr->reserve0.get_extended_symbol();
@@ -283,6 +293,7 @@ void swap::addliquidity(name owner, extended_symbol token0,
     p_itr++;
   }
   check(p_itr != byhash_idx.end(), "pair does not exist");
+  check(p_itr->active, "pair is not active to add liquidity");
   symbol_code code = p_itr->code;
 
   deposits_mi deposits(_self, code.raw());
@@ -369,6 +380,7 @@ void swap::addliquidity(name owner, extended_symbol token0,
 extended_asset swap::swap_token(symbol_code code, name from, name contract,
                                 asset quantity) {
   auto p_itr = _pairs.require_find(code.raw(), "pair does not exist");
+  check(p_itr->active, "pair is not active for trading");
   bool is_token0 = contract == p_itr->reserve0.contract &&
                    quantity.symbol == p_itr->reserve0.quantity.symbol;
   bool is_token1 = contract == p_itr->reserve1.contract &&

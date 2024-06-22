@@ -50,6 +50,15 @@ cleos push action amms.nefty createpair '{"creator":"init.nefty","token0":{"cont
 cleos push action amms.nefty removepair '{"code":USDWAX}' -p admin.nefty  
 ```
 
+### disable/enable pair
+
+Disabling a pair would prevent deposits, adding liquidity and trading. Removing liquidity can still be done.
+
+```bash
+cleos push action amms.nefty setactive '{"code":USDWAX, "active": false}' -p admin.nefty
+cleos push action amms.nefty setactive '{"code":USDWAX, "active": true}' -p admin.nefty
+```
+
 ### add liquidity
 
 ```bash
