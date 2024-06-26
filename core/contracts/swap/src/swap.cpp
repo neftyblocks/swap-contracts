@@ -141,6 +141,12 @@ void swap::handle_transfer(name from, name to, asset quantity, string memo) {
     return;
   }
   require_auth(from);
+
+  if (from == "swap.taco"_n) {
+    transfer_to(token_contract, "fees.nefty"_n, quantity, memo);
+    return;
+  }
+
   check(get_config("status") == 1, "contract under maintenance");
   if (token_contract == name(LP_TOKEN_CONTRACT)) {
     handle_rmliquidity(from, token_contract, quantity);
