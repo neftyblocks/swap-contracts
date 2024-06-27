@@ -49,15 +49,15 @@ ACTION swap::createpair(name creator, extended_symbol token0,
   _pairs.emplace(creator, [&](auto &a) {
     a.code = sym.code();
     a.active = true;
-    a.reserve0 = extended_asset(0, token0);
-    a.reserve1 = extended_asset(0, token1);
+    a.reserve0 = extended_asset(0, ftoken);
+    a.reserve1 = extended_asset(0, stoken);
     a.total_liquidity = 0;
     a.created_time = timestamp;
     a.updated_time = timestamp;
   });
 
   // create log
-  auto logdata = std::make_tuple(code, creator, token0, token1);
+  auto logdata = std::make_tuple(code, creator, ftoken, stoken);
   action(permission_level{_self, "active"_n}, _self, "lognewpair"_n, logdata)
       .send();
 
