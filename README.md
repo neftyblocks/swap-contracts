@@ -64,8 +64,8 @@ cleos push action swap.nefty setactive '{"code":USDWAX, "active": true}' -p admi
 ### add liquidity
 
 ```bash
-cleos push action eosio.token transfer '["init.nefty","swap.nefty","1000.00000000 WAX","deposit_to_pair:8,WAX@eosio.token4,USDT@testbagzbag1-usdt.alcor"]' -p init.nefty
-cleos push action usdt.alcor transfer '["init.nefty","swap.nefty","2000.0000 USDT","deposit_to_pair:8,WAX@eosio.token4,USDT@testbagzbag1-usdt.alcor"]' -p init.nefty
+cleos push action eosio.token transfer '["init.nefty","swap.nefty","1000.00000000 WAX","deposit_to_pair:8,WAX@eosio.token-4,USDT@usdt.alcor"]' -p init.nefty
+cleos push action usdt.alcor transfer '["init.nefty","swap.nefty","2000.0000 USDT","deposit_to_pair:8,WAX@eosio.token-4,USDT@usdt.alcor"]' -p init.nefty
 cleos push action swap.nefty addliquidity '{"creator":"owner","token0":{"contract":"eosio.token","sym":"8,WAX"},"token1":{"contract":"usdt.alcor","sym":"4,USDT"}}' -p init.nefty
 ```
 
