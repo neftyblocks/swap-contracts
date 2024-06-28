@@ -160,6 +160,7 @@ void swap::handle_transfer(name from, name to, asset quantity, string memo) {
     uint64_t hash = str_hash(symbols[0], symbols[1]);
     auto byhash_idx = _pairs.get_index<"byhash"_n>();
     auto p_itr = byhash_idx.find(hash);
+    check(p_itr != byhash_idx.end(), "pair does not exist");
     while (!is_same_pair(p_itr->reserve0.get_extended_symbol(),
                          p_itr->reserve1.get_extended_symbol(), symbols[0],
                          symbols[1])) {
