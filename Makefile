@@ -3,8 +3,8 @@
 SWAP_CONTRACT=swap
 TOKEN_CONTRACT=lptoken
 
-TEST_SWAP_ACCOUNT=swap.nefty
-TEST_TOKEN_ACCOUNT=lp.nefty
+SWAP_ACCOUNT=swap.nefty
+TOKEN_ACCOUNT=lp.nefty
 
 TEST_URL=https://wax-testnet.neftyblocks.com
 PROD_URL=https://wax.neftyblocks.com
@@ -21,12 +21,26 @@ build-swap-test:
 build-lptoken-test:
 	./build.sh ${TOKEN_CONTRACT}
 
+build: build-swap build-lptoken
+
+build-test: build-swap-test build-lptoken-test
+
 use-test:
 	cleos wallet open -n test
 	cleos wallet unlock -n test
 
+use-prod:
+	cleos wallet open -n prod
+	cleos wallet unlock -n prod
+
 deploy-test:
-	cleos -u ${TEST_URL} set contract ${TEST_SWAP_ACCOUNT} ./artifacts $(SWAP_CONTRACT).wasm $(SWAP_CONTRACT).abi -p ${TEST_SWAP_ACCOUNT}@active
-	cleos -u ${TEST_URL} set contract ${TEST_TOKEN_ACCOUNT} ./artifacts $(TOKEN_CONTRACT).wasm $(TOKEN_CONTRACT).abi -p ${TEST_TOKEN_ACCOUNT}@active
+	cleos -u ${TEST_URL} set contract ${SWAP_ACCOUNT} ./artifacts $(SWAP_CONTRACT).wasm $(SWAP_CONTRACT).abi -p ${SWAP_ACCOUNT}@active
+	cleos -u ${TEST_URL} set contract ${TOKEN_ACCOUNT} ./artifacts $(TOKEN_CONTRACT).wasm $(TOKEN_CONTRACT).abi -p ${TOKEN_ACCOUNT}@active
+
+deploy-prod:
+	cleos -u ${PROD_URL} set contract ${SWAP_ACCOUNT} ./artifacts $(SWAP_CONTRACT).wasm $(SWAP_CONTRACT).abi -p ${SWAP_ACCOUNT}@active
+	cleos -u ${PROD_URL} set contract ${TOKEN_ACCOUNT} ./artifacts $(TOKEN_CONTRACT).wasm $(TOKEN_CONTRACT).abi -p ${TOKEN_ACCOUNT}@active
 
 install-test: build-swap build-lptoken deploy-test
+
+install-prod: build-swap build-lptoken deploy-prod
