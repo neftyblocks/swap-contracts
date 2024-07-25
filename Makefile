@@ -33,14 +33,26 @@ use-prod:
 	cleos wallet open -n prod
 	cleos wallet unlock -n prod
 
-deploy-test:
-	cleos -u ${TEST_URL} set contract ${SWAP_ACCOUNT} ./artifacts $(SWAP_CONTRACT).wasm $(SWAP_CONTRACT).abi -p ${SWAP_ACCOUNT}@active
+deploy-lptoken-test:
 	cleos -u ${TEST_URL} set contract ${TOKEN_ACCOUNT} ./artifacts $(TOKEN_CONTRACT).wasm $(TOKEN_CONTRACT).abi -p ${TOKEN_ACCOUNT}@active
 
-deploy-prod:
-	cleos -u ${PROD_URL} set contract ${SWAP_ACCOUNT} ./artifacts $(SWAP_CONTRACT).wasm $(SWAP_CONTRACT).abi -p ${SWAP_ACCOUNT}@active
+deploy-swap-test:
+	cleos -u ${TEST_URL} set contract ${SWAP_ACCOUNT} ./artifacts $(SWAP_CONTRACT).wasm $(SWAP_CONTRACT).abi -p ${SWAP_ACCOUNT}@active
+
+deploy-lptoken-prod:
 	cleos -u ${PROD_URL} set contract ${TOKEN_ACCOUNT} ./artifacts $(TOKEN_CONTRACT).wasm $(TOKEN_CONTRACT).abi -p ${TOKEN_ACCOUNT}@active
 
-install-test: build-swap build-lptoken deploy-test
+deploy-swap-prod:
+	cleos -u ${PROD_URL} set contract ${SWAP_ACCOUNT} ./artifacts $(SWAP_CONTRACT).wasm $(SWAP_CONTRACT).abi -p ${SWAP_ACCOUNT}@active
 
-install-prod: build-swap build-lptoken deploy-prod
+install-lptoken-test: build-lptoken deploy-lptoken-test
+
+install-swap-test: build-swap deploy-swap-test
+
+install-lptoken-prod: build-lptoken deploy-lptoken-prod
+
+install-swap-prod: build-swap deploy-swap-prod
+
+install-test: install-swap-test install-lptoken-test
+
+install-prod: install-swap-prod install-lptoken-prod
