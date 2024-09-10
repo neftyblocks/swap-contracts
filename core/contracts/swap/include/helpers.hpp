@@ -120,12 +120,13 @@ std::map<string, string> mappify(string const &s) {
 
 string int2code(uint64_t id) {
   string code = "";
-  while (id > 0) {
-    int m = id % 26;
+  uint64_t id2 = id;
+  while (id2 > 0) {
+    int m = id2 % 26;
     if (m == 0)
       m = 26;
     code = (char)(m + 64) + code;
-    id = (id - m) / 26;
+    id2 = (id2 - m) / 26;
   }
   return code;
 }

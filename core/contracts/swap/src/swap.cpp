@@ -38,9 +38,10 @@ ACTION swap::createpair(name creator, extended_symbol token0,
   symbol_code code =
       symbol_code(ftoken.get_symbol().code().to_string().substr(0, 3) +
                   stoken.get_symbol().code().to_string().substr(0, 3));
+  symbol_code original_code = symbol_code(code.to_string());
   uint64_t suffix_id = 1;
   while (_pairs.find(code.raw()) != _pairs.end()) {
-    code = symbol_code(code.to_string() + int2code(suffix_id));
+    code = symbol_code(original_code.to_string() + int2code(suffix_id));
     suffix_id++;
   }
 
